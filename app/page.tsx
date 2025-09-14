@@ -1,48 +1,40 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Schedule Appointments with Ease</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Connect buyers and sellers through seamless Google Calendar integration. Book appointments that sync
-            automatically to both calendars.
-          </p>
-        </div>
+    <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="w-full max-w-3xl px-4">
+        <h1 className="text-2xl font-semibold text-center text-gray-900 mb-8">
+          Schedule Appointments Easily
+        </h1>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <Card className="text-center">
+        <div className="grid md:grid-cols-2 gap-4">
+          <Card className="border rounded-md text-center">
             <CardHeader>
-              <CardTitle className="text-2xl text-blue-600">For Sellers</CardTitle>
-              <CardDescription>Share your availability and manage appointments</CardDescription>
+              <CardTitle className="text-lg font-medium">For Sellers</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600">
-                Connect your Google Calendar to automatically share your availability and receive bookings from
-                potential buyers.
+            <CardContent className="space-y-2">
+              <p className="text-gray-600 text-sm">
+                Share your availability and receive bookings from buyers.
               </p>
               <Button asChild className="w-full">
-                <Link href="/auth/login?role=seller">Get Started as Seller</Link>
+                <Link href="/auth/login?role=seller">Get Started</Link>
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="text-center">
+          <Card className="border rounded-md text-center">
             <CardHeader>
-              <CardTitle className="text-2xl text-green-600">For Buyers</CardTitle>
-              <CardDescription>Find and book appointments with sellers</CardDescription>
+              <CardTitle className="text-lg font-medium">For Buyers</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600">
-                Browse available sellers, view their real-time availability, and book appointments that sync to your
-                Google Calendar.
+            <CardContent className="space-y-2">
+              <p className="text-gray-600 text-sm">
+                Browse sellers and book appointments that sync to your calendar.
               </p>
-              <Button asChild className="w-full bg-transparent" variant="outline">
-                <Link href="/auth/login?role=buyer">Get Started as Buyer</Link>
+              <Button asChild className="w-full" variant="outline">
+                <Link href="/auth/login?role=buyer">Get Started</Link>
               </Button>
             </CardContent>
           </Card>
