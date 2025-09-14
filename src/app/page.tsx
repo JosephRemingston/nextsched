@@ -1,13 +1,10 @@
-import { SessionProvider } from "next-auth/react";
-import AuthButton from "../app/components/AuthButton";
+import LoginButton from "../../components/LoginButton";
 
-import type { AppProps } from "next/app";
-
-export default function App({ Component, pageProps }: AppProps) {
+export default function Home() {
   return (
-    <SessionProvider session={pageProps.session}>
-      <AuthButton />
-      <Component {...pageProps} />
-    </SessionProvider>
+    <main>
+      <h1>Welcome to NextSched</h1>
+      <LoginButton />
+    </main>
   );
 }
