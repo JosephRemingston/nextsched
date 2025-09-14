@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url)
+  // Get the deployment URL from environment variable or use request origin
+  const deploymentUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || new URL(request.url).origin
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get("code")
   const role = searchParams.get("role") || "buyer"
 
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
       // Redirect based on role
       console.log("Google refresh token:", data.session?.provider_refresh_token);
       const redirectPath = role === "seller" ? "/seller" : "/buyer"
-      return NextResponse.redirect(`${origin}${redirectPath}`)
+      return NextResponse.redirect(`${deploymentUrl}${redirectPath}`)
     }
   }
 
