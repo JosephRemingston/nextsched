@@ -2,11 +2,12 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
-  // Get the deployment URL from environment variable or use request origin
-  const deploymentUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || new URL(request.url).origin
-  const { searchParams } = new URL(request.url)
-  const code = searchParams.get("code")
-  const role = searchParams.get("role") || "buyer"
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get("code")
+  const role = requestUrl.searchParams.get("role") || "buyer"
+  
+  // Always use the origin of the request URL to ensure proper redirection
+  const siteUrl = requestUrl.origin
 
   if (code) {
     const supabase = await createClient()
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
       // Redirect based on role
       console.log("Google refresh token:", data.session?.provider_refresh_token);
       const redirectPath = role === "seller" ? "/seller" : "/buyer"
-      return NextResponse.redirect(`${deploymentUrl}${redirectPath}`)
+      return NextResponse.redirect(`${siteUrl}${redirectPath}`)
     }
   }
 
