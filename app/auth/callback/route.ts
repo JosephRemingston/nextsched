@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
 
       // Redirect based on role
       console.log("Google refresh token:", data.session?.provider_refresh_token);
-      const redirectPath = role === "seller" ? "/seller" : "/buyer"
+      const redirectPath = role === "seller" ? "/seller" : "/buyer/book"
       return NextResponse.redirect(`${siteUrl}${redirectPath}`)
     }
   }
 
   // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/error`)
+  return NextResponse.redirect(`${siteUrl}/auth/error`)
 }
