@@ -33,20 +33,27 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     if (seller.google_refresh_token) {
       try {
+        console.log("Attempting to refresh Google token...")
         // Refresh seller's access token
         const accessToken = await refreshGoogleToken(seller.google_refresh_token)
 
         if (accessToken) {
+          console.log("Access token refreshed successfully")
           const calendarService = new GoogleCalendarService(accessToken)
           availableSlots = await calendarService.getAvailableSlots(date)
           console.log("Google Calendar slots:", availableSlots.length)
+        } else {
+          console.log("Failed to refresh access token, will use default slots")
         }
       } catch (error) {
         console.error("Error fetching calendar availability:", error)
+        console.log("Will fall back to default slots due to calendar error")
       }
+    } else {
+      console.log("No Google refresh token found, using default slots")
     }
 
-    // If no Google Calendar integration, provide default slots
+    // If no Google Calendar integration OR Google Calendar returned no slots, provide default slots
     if (availableSlots.length === 0) {
       console.log("Generating default slots for date:", date)
       // Generate default available slots (9 AM to 5 PM)

@@ -232,7 +232,7 @@ export default function BookingForm({ seller, buyer }: BookingFormProps) {
                     <p>No available slots for this date</p>
                     <p className="text-xs mt-1">
                       {seller.google_refresh_token 
-                        ? "The seller's calendar is busy during all available hours (9 AM - 5 PM)"
+                        ? "Please try a different date or check back later"
                         : "The seller has not connected their Google Calendar yet"
                       }
                     </p>

@@ -89,6 +89,7 @@ export class GoogleCalendarService {
       return availableSlots
     } catch (error) {
       console.error("Error fetching available slots:", error)
+      console.log("Returning empty array to trigger default slot fallback")
       return []
     }
   }
@@ -130,6 +131,14 @@ export class GoogleCalendarService {
 // Utility to refresh Google access token
 export async function refreshGoogleToken(refreshToken: string): Promise<string | null> {
   try {
+    console.log("Attempting to refresh Google token...")
+    
+    // Check if environment variables are set
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      console.error("Missing Google OAuth environment variables")
+      return null
+    }
+    
     const response = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: {
@@ -143,11 +152,16 @@ export async function refreshGoogleToken(refreshToken: string): Promise<string |
       }),
     })
 
+    console.log("Token refresh response status:", response.status)
+
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error("Token refresh failed:", response.status, errorText)
       throw new Error("Failed to refresh token")
     }
 
     const data = await response.json()
+    console.log("Token refreshed successfully")
     return data.access_token
   } catch (error) {
     console.error("Error refreshing Google token:", error)
