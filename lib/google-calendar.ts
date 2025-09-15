@@ -31,6 +31,8 @@ export class GoogleCalendarService {
 
   async getAvailableSlots(date: string): Promise<TimeSlot[]> {
     try {
+      console.log("Fetching Google Calendar availability for date:", date)
+      
       // Get busy times from Google Calendar
       const response = await fetch(`https://www.googleapis.com/calendar/v3/freeBusy`, {
         method: "POST",
@@ -46,16 +48,21 @@ export class GoogleCalendarService {
       })
 
       if (!response.ok) {
+        console.error("Google Calendar API error:", response.status, await response.text())
         throw new Error("Failed to fetch calendar data")
       }
 
       const data = await response.json()
       const busyTimes = data.calendars?.primary?.busy || []
 
+      console.log("Google Calendar busy times:", busyTimes)
+
       // Generate available slots (9 AM to 5 PM, 1-hour slots)
       const availableSlots: TimeSlot[] = []
       const startHour = 9
       const endHour = 17
+
+      console.log("Generating slots from", startHour, "to", endHour, "for date:", date)
 
       for (let hour = startHour; hour < endHour; hour++) {
         const slotStart = `${date}T${hour.toString().padStart(2, "0")}:00:00Z`
@@ -73,9 +80,12 @@ export class GoogleCalendarService {
 
         if (isAvailable) {
           availableSlots.push({ start: slotStart, end: slotEnd })
+        } else {
+          console.log("Slot", slotStart, "to", slotEnd, "is busy")
         }
       }
 
+      console.log("Google Calendar available slots:", availableSlots.length)
       return availableSlots
     } catch (error) {
       console.error("Error fetching available slots:", error)

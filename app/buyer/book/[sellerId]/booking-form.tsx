@@ -63,12 +63,17 @@ export default function BookingForm({ seller, buyer }: BookingFormProps) {
   const fetchAvailableSlots = async (date: string) => {
     setIsLoadingSlots(true)
     setSelectedSlot(null)
+    console.log("Fetching slots for date:", date, "seller:", seller.id)
     try {
       const response = await fetch(`/api/calendar/availability/${seller.id}?date=${date}`)
+      console.log("Response status:", response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log("Available slots received:", data.availableSlots?.length || 0, data.availableSlots)
         setAvailableSlots(data.availableSlots || [])
       } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("Failed to fetch slots:", response.status, errorData)
         setAvailableSlots([])
       }
     } catch (error) {
@@ -225,6 +230,15 @@ export default function BookingForm({ seller, buyer }: BookingFormProps) {
                   <div className="text-center py-8 text-gray-500">
                     <Clock className="mx-auto h-8 w-8 mb-2" />
                     <p>No available slots for this date</p>
+                    <p className="text-xs mt-1">
+                      {seller.google_refresh_token 
+                        ? "The seller's calendar is busy during all available hours (9 AM - 5 PM)"
+                        : "The seller has not connected their Google Calendar yet"
+                      }
+                    </p>
+                    <p className="text-xs text-blue-600 mt-2">
+                      Try selecting a different date
+                    </p>
                   </div>
                 )}
               </div>

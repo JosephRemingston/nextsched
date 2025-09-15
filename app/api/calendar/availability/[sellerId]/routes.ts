@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { GoogleCalendarService, refreshGoogleToken } from "@/lib/google-calendar"
+import { GoogleCalendarService, refreshGoogleToken, type TimeSlot } from "@/lib/google-calendar"
 import { type NextRequest, NextResponse } from "next/server"
 
 interface RouteParams {
@@ -11,6 +11,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { sellerId } = await params
     const { searchParams } = new URL(request.url)
     const date = searchParams.get("date")
+
+    console.log("Availability request:", { sellerId, date })
 
     if (!date) {
       return NextResponse.json({ error: "Date parameter is required" }, { status: 400 })
@@ -25,7 +27,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Seller not found" }, { status: 404 })
     }
 
-    let availableSlots = []
+    console.log("Seller found:", { id: seller.id, name: seller.name, hasGoogleToken: !!seller.google_refresh_token })
+
+    let availableSlots: TimeSlot[] = []
 
     if (seller.google_refresh_token) {
       try {
@@ -35,6 +39,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         if (accessToken) {
           const calendarService = new GoogleCalendarService(accessToken)
           availableSlots = await calendarService.getAvailableSlots(date)
+          console.log("Google Calendar slots:", availableSlots.length)
         }
       } catch (error) {
         console.error("Error fetching calendar availability:", error)
@@ -43,21 +48,34 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // If no Google Calendar integration, provide default slots
     if (availableSlots.length === 0) {
+      console.log("Generating default slots for date:", date)
       // Generate default available slots (9 AM to 5 PM)
       for (let hour = 9; hour < 17; hour++) {
         const slotStart = `${date}T${hour.toString().padStart(2, "0")}:00:00Z`
         const slotEnd = `${date}T${(hour + 1).toString().padStart(2, "0")}:00:00Z`
         availableSlots.push({ start: slotStart, end: slotEnd })
       }
+      console.log("Generated default slots:", availableSlots.length)
     }
 
     // Filter out already booked appointments
-    const { data: existingAppointments } = await supabase
+    const dateStart = `${date}T00:00:00Z`
+    const dateEnd = `${date}T23:59:59Z`
+    
+    console.log("Querying appointments between:", dateStart, "and", dateEnd)
+    
+    const { data: existingAppointments, error: appointmentsError } = await supabase
       .from("appointments")
       .select("start_time, end_time")
       .eq("seller_id", sellerId)
-      .gte("start_time", `${date}T00:00:00Z`)
-      .lt("start_time", `${date}T23:59:59Z`)
+      .gte("start_time", dateStart)
+      .lt("end_time", dateEnd)
+
+    if (appointmentsError) {
+      console.error("Error fetching appointments:", appointmentsError)
+    }
+
+    console.log("Existing appointments for date:", existingAppointments?.length || 0, existingAppointments)
 
     const filteredSlots = availableSlots.filter((slot) => {
       return !existingAppointments?.some((appointment) => {
@@ -69,6 +87,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         return slotStart < appointmentEnd && slotEnd > appointmentStart
       })
     })
+
+    console.log("Final filtered slots:", filteredSlots.length)
 
     return NextResponse.json({ availableSlots: filteredSlots })
   } catch (error) {
