@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CalendarDays, Search, User } from "lucide-react"
 import Link from "next/link"
+import UserHeader from "@/components/user-header"
 
 export default async function BuyerDashboard() {
   const supabase = await createClient()
@@ -46,9 +47,12 @@ export default async function BuyerDashboard() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-semibold">Book an Appointment</h1>
-          <Button asChild variant="outline">
-            <Link href="/appointments">My Appointments ({appointments?.length || 0})</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/appointments">My Appointments ({appointments?.length || 0})</Link>
+            </Button>
+            <UserHeader />
+          </div>
         </div>
 
         {/* Sellers List */}

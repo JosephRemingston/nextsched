@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
+import UserHeader from "@/components/user-header"
 
 export default async function AppointmentsPage() {
   const supabase = await createClient()
@@ -81,13 +82,9 @@ export default async function AppointmentsPage() {
   return (
     <div style={{ background: "#f9f9f9", minHeight: "100vh" }}>
       <div style={containerStyle}>
-        <header style={headerStyle}>
+        <header style={{ ...headerStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h1>Appointments</h1>
-          {profile.role === "buyer" && (
-            <Link href="/buyer" style={btnStyle}>
-              Book New Appointment
-            </Link>
-          )}
+          <UserHeader />
         </header>
 
         <div style={summaryStyle}>
